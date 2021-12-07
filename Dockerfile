@@ -1,19 +1,29 @@
 ARG PACKAGE_GROUP=base
 
 FROM alpine:3.15 AS bootstrapper
-COPY pacman /pacman
+ARG TARGETARCH
+COPY files /files
 RUN \
-	apk add arch-install-scripts pacman-makepkg && \
-	cat /pacman/repos >> /etc/pacman.conf && \
-	cp -r /pacman/keyrings /usr/share/pacman/ && \
+	apk add arch-install-scripts pacman-makepkg curl && \
+	cat /files/repos-$TARGETARCH >> /etc/pacman.conf && \
+	if [[ "$TARGETARCH" == "amd64" ]]; then \
+			apk add zstd && \
+			mkdir /tmp/archlinux-keyring && \
+			curl -L https://archlinux.org/packages/core/any/archlinux-keyring/download | unzstd | tar -C /tmp/archlinux-keyring -xv && \
+			mv /tmp/archlinux-keyring/usr/share/pacman/keyrings /usr/share/pacman/; \
+	elif [[ "$TARGETARCH" == "arm64" ]]; then \
+			curl -L https://github.com/archlinuxarm/archlinuxarm-keyring/archive/refs/heads/master.zip | unzip -d /tmp/archlinuxarm-keyring - && \
+			mkdir /usr/share/pacman/keyrings && \
+			mv /tmp/archlinuxarm-keyring/*/archlinuxarm* /usr/share/pacman/keyrings/; \
+	fi && \
 	pacman-key --init && \
 	pacman-key --populate && \
 	mkdir /rootfs && \
-	/pacman/pacstrap-docker /rootfs $PACKAGE_GROUP && \
+	/files/pacstrap-docker /rootfs $PACKAGE_GROUP && \
 	echo "en_US.UTF-8 UTF-8" > /rootfs/etc/locale.gen && \
 	echo "LANG=en_US.UTF-8" > /rootfs/etc/locale.conf && \
 	chroot /rootfs locale-gen && \
-	rm -rf /rootfs/var/lib/pacman/sync/* /root/pacman
+	rm -rf /rootfs/var/lib/pacman/sync/* /rootfs/files
 
 FROM scratch
 COPY --from=bootstrapper /rootfs/ /

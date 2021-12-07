@@ -1,0 +1,8 @@
+[core]
+Server = http://mirror.rackspace.com/archlinux/$repo/os/$arch
+
+[extra]
+Server = http://mirror.rackspace.com/archlinux/$repo/os/$arch
+
+[community]
+Server = http://mirror.rackspace.com/archlinux/$repo/os/$arch

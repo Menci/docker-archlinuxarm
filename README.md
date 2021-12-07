@@ -1,10 +1,10 @@
-# Docker Image for Arch Linux ARM
+# Arch Linux Docker Image (Multiarch)
 
 [![Build and Push](https://github.com/Menci/docker-archlinuxarm/actions/workflows/build.yaml/badge.svg)](https://github.com/Menci/docker-archlinuxarm/actions/workflows/build.yaml)
 
-This is the Docker image for Arch Linux ARM. All images are built on GitHub Actions automatically.
+This is the Docker image for Arch Linux ARM but for compatibility AMD64 build is also included. All images are built on GitHub Actions automatically.
 
-Just just like the official Arch Linux amd64 image, it has two tags:
+Just just like the official Arch Linux AMD64 image, it has two tags:
 
 * `base` (default): installed only the package group `base`.
 * `base-devel`: installed the package group `base-devel`.
