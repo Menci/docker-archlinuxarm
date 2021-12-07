@@ -1,7 +1,6 @@
-ARG PACKAGE_GROUP=base
-
 FROM alpine:3.15 AS bootstrapper
 ARG TARGETARCH
+ARG PACKAGE_GROUP=base
 COPY files /files
 RUN \
 	apk add arch-install-scripts pacman-makepkg curl && \
