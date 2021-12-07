@@ -1,8 +1,8 @@
 [core]
-Server = http://mirror.rackspace.com/archlinux/$repo/os/$arch
+Include = /etc/pacman.d/mirrorlist
 
 [extra]
-Server = http://mirror.rackspace.com/archlinux/$repo/os/$arch
+Include = /etc/pacman.d/mirrorlist
 
 [community]
-Server = http://mirror.rackspace.com/archlinux/$repo/os/$arch
+Include = /etc/pacman.d/mirrorlist

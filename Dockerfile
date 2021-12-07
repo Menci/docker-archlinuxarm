@@ -5,6 +5,8 @@ COPY files /files
 RUN \
 	apk add arch-install-scripts pacman-makepkg curl && \
 	cat /files/repos-$TARGETARCH >> /etc/pacman.conf && \
+	mkdir -p /etc/pacman.d && \
+	cp /files/mirrorlist-$TARGETARCH /etc/pacman.d/mirrorlist && \
 	if [[ "$TARGETARCH" == "amd64" ]]; then \
 			apk add zstd && \
 			mkdir /tmp/archlinux-keyring && \
@@ -19,6 +21,7 @@ RUN \
 	pacman-key --populate && \
 	mkdir /rootfs && \
 	/files/pacstrap-docker /rootfs $PACKAGE_GROUP && \
+	cp /etc/pacman.d/mirrorlist /rootfs/etc/pacman.d/mirrorlist && \
 	echo "en_US.UTF-8 UTF-8" > /rootfs/etc/locale.gen && \
 	echo "LANG=en_US.UTF-8" > /rootfs/etc/locale.conf && \
 	chroot /rootfs locale-gen && \

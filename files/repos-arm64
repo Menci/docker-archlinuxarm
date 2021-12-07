@@ -1,14 +1,14 @@
 [core]
-Server = http://mirror.archlinuxarm.org/$arch/$repo
+Include = /etc/pacman.d/mirrorlist
 
 [extra]
-Server = http://mirror.archlinuxarm.org/$arch/$repo
+Include = /etc/pacman.d/mirrorlist
 
 [community]
-Server = http://mirror.archlinuxarm.org/$arch/$repo
+Include = /etc/pacman.d/mirrorlist
 
 [alarm]
-Server = http://mirror.archlinuxarm.org/$arch/$repo
+Include = /etc/pacman.d/mirrorlist
 
 [aur]
-Server = http://mirror.archlinuxarm.org/$arch/$repo
+Include = /etc/pacman.d/mirrorlist
