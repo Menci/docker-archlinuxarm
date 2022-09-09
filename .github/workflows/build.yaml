@@ -55,3 +55,4 @@ jobs:
           tags: ${{ env.TAGS }}
           build-args: |
             PACKAGE_GROUP=${{ matrix.target.package-group }}
+      - uses: gautamkrishnar/keepalive-workflow@v1
