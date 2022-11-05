@@ -32,16 +32,24 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to ghcr.io
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate Tag List
         run: |
           echo "TAGS<<EOF" >> $GITHUB_ENV
 
           DATE="$(date +'%Y%m%d')"
-          echo $IMAGE_NAME:$TAG >> $GITHUB_ENV
-          echo $IMAGE_NAME:$TAG-$DATE.$RUN_ID >> $GITHUB_ENV
-          if [[ "$TAG" == "base" ]]; then
-              echo $IMAGE_NAME:latest >> $GITHUB_ENV
-          fi
+          for REGISTRY in {"","ghcr.io/"}; do
+              echo $REGISTRY$IMAGE_NAME:$TAG >> $GITHUB_ENV
+              echo $REGISTRY$IMAGE_NAME:$TAG-$DATE.$RUN_ID >> $GITHUB_ENV
+              if [[ "$TAG" == "base" ]]; then
+                  echo $REGISTRY$IMAGE_NAME:latest >> $GITHUB_ENV
+              fi
+          done
 
           echo "EOF" >> $GITHUB_ENV
         env:
