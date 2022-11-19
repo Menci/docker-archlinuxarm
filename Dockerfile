@@ -1,4 +1,4 @@
-FROM alpine:3.15 AS bootstrapper
+FROM alpine:20221110 AS bootstrapper
 ARG TARGETARCH
 ARG PACKAGE_GROUP=base
 COPY files /files
@@ -16,6 +16,11 @@ RUN \
 			curl -L https://github.com/archlinuxarm/archlinuxarm-keyring/archive/refs/heads/master.zip | unzip -d /tmp/archlinuxarm-keyring - && \
 			mkdir /usr/share/pacman/keyrings && \
 			mv /tmp/archlinuxarm-keyring/*/archlinuxarm* /usr/share/pacman/keyrings/; \
+	elif [[ "$TARGETARCH" == "riscv64" ]]; then \
+ 			apk add zstd && \
+ 			mkdir /tmp/archlinux-keyring && \
+ 			curl -L https://archriscv.felixc.at/repo/core/archlinux-keyring-20221110-1-any.pkg.tar.zst | unzstd | tar -C /tmp/archlinux-keyring -xv && \
+ 			mv /tmp/archlinux-keyring/usr/share/pacman/keyrings /usr/share/pacman/; \
 	fi && \
 	pacman-key --init && \
 	pacman-key --populate && \
