@@ -7,20 +7,15 @@ RUN \
 	cat /files/repos-$TARGETARCH >> /etc/pacman.conf && \
 	mkdir -p /etc/pacman.d && \
 	cp /files/mirrorlist-$TARGETARCH /etc/pacman.d/mirrorlist && \
-	if [[ "$TARGETARCH" == "amd64" ]]; then \
+	if [[ "$TARGETARCH" == "arm64" ]]; then \
+			curl -L https://github.com/archlinuxarm/archlinuxarm-keyring/archive/refs/heads/master.zip | unzip -d /tmp/archlinuxarm-keyring - && \
+			mkdir /usr/share/pacman/keyrings && \
+			mv /tmp/archlinuxarm-keyring/*/archlinuxarm* /usr/share/pacman/keyrings/; \
+	else \
 			apk add zstd && \
 			mkdir /tmp/archlinux-keyring && \
 			curl -L https://archlinux.org/packages/core/any/archlinux-keyring/download | unzstd | tar -C /tmp/archlinux-keyring -xv && \
 			mv /tmp/archlinux-keyring/usr/share/pacman/keyrings /usr/share/pacman/; \
-	elif [[ "$TARGETARCH" == "arm64" ]]; then \
-			curl -L https://github.com/archlinuxarm/archlinuxarm-keyring/archive/refs/heads/master.zip | unzip -d /tmp/archlinuxarm-keyring - && \
-			mkdir /usr/share/pacman/keyrings && \
-			mv /tmp/archlinuxarm-keyring/*/archlinuxarm* /usr/share/pacman/keyrings/; \
-	elif [[ "$TARGETARCH" == "riscv64" ]]; then \
- 			apk add zstd && \
- 			mkdir /tmp/archlinux-keyring && \
- 			curl -L https://archriscv.felixc.at/repo/core/archlinux-keyring-20221110-1-any.pkg.tar.zst | unzstd | tar -C /tmp/archlinux-keyring -xv && \
- 			mv /tmp/archlinux-keyring/usr/share/pacman/keyrings /usr/share/pacman/; \
 	fi && \
 	pacman-key --init && \
 	pacman-key --populate && \
