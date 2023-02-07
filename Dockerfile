@@ -8,7 +8,7 @@ RUN \
 	mkdir -p /etc/pacman.d && \
 	cp /files/mirrorlist-$TARGETARCH /etc/pacman.d/mirrorlist && \
 	if [[ "$TARGETARCH" == "arm64" ]]; then \
-			curl -L https://github.com/archlinuxarm/archlinuxarm-keyring/archive/refs/heads/master.zip | unzip -d /tmp/archlinuxarm-keyring - && \
+			curl -L https://github.com/archlinuxarm/archlinuxarm-keyring/archive/8af9b54e9ee0a8f45ab0810e1b33d7c351b32362.zip | unzip -d /tmp/archlinuxarm-keyring - && \
 			mkdir /usr/share/pacman/keyrings && \
 			mv /tmp/archlinuxarm-keyring/*/archlinuxarm* /usr/share/pacman/keyrings/; \
 	else \
