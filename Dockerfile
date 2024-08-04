@@ -1,28 +1,28 @@
-FROM alpine:20240606 AS bootstrapper
+FROM debian:sid AS bootstrapper
 ARG TARGETARCH
 ARG PACKAGE_GROUP=base
 COPY files /files
 RUN \
-	apk add arch-install-scripts pacman-makepkg curl && \
+	apt-get update && \
+	apt-get install -y --no-install-recommends arch-install-scripts pacman-package-manager makepkg curl ca-certificates xz-utils zstd && \
 	cat /files/repos-$TARGETARCH >> /etc/pacman.conf && \
+	sed -i "s/^CheckSpace/#CheckSpace/" /etc/pacman.conf && \
 	mkdir -p /etc/pacman.d && \
 	cp /files/mirrorlist-$TARGETARCH /etc/pacman.d/mirrorlist && \
 	BOOTSTRAP_EXTRA_PACKAGES="" && \
-	if [[ "$TARGETARCH" == "arm*" ]]; then \
+	if case "$TARGETARCH" in arm*) true;; *) false;; esac; then \
 			ALARM_MIRROR="http://mirror.archlinuxarm.org" && \
 			mkdir /tmp/archlinuxarm-core /tmp/archlinuxarm-keyring && \
 			curl -L $ALARM_MIRROR/aarch64/core/core.db.tar.gz | tar -zxv -C /tmp/archlinuxarm-core && \
 			KEYRING_PACKAGE_FILENAME="$(grep -A1 "%FILENAME%" /tmp/archlinuxarm-core/archlinuxarm-keyring-*/desc | tail -n 1)" && \
 			curl -L $ALARM_MIRROR/aarch64/core/$KEYRING_PACKAGE_FILENAME > /tmp/$KEYRING_PACKAGE_FILENAME && \
 			tar -axvf /tmp/$KEYRING_PACKAGE_FILENAME -C /tmp/archlinuxarm-keyring && \
-			mkdir /usr/share/pacman/keyrings && \
-			mv /tmp/archlinuxarm-keyring/usr/share/pacman/keyrings/* /usr/share/pacman/keyrings/ && \
+			mv /tmp/archlinuxarm-keyring/usr/share/pacman/keyrings/* /usr/share/keyrings/ && \
 			BOOTSTRAP_EXTRA_PACKAGES="archlinuxarm-keyring"; \
 	else \
-			apk add zstd && \
 			mkdir /tmp/archlinux-keyring && \
 			curl -L https://archlinux.org/packages/core/any/archlinux-keyring/download | unzstd | tar -C /tmp/archlinux-keyring -xv && \
-			mv /tmp/archlinux-keyring/usr/share/pacman/keyrings /usr/share/pacman/; \
+			mv /tmp/archlinux-keyring/usr/share/pacman/keyrings/* /usr/share/keyrings/; \
 	fi && \
 	pacman-key --init && \
 	pacman-key --populate && \

@@ -1,1 +1,1 @@
-Server = http://mirrors.xtom.com/archlinux/$repo/os/$arch
+Server = http://mirrors.xtom.com/archlinux/$repo/os/x86_64
