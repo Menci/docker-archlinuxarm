@@ -9,9 +9,14 @@ RUN \
 	cp /files/mirrorlist-$TARGETARCH /etc/pacman.d/mirrorlist && \
 	BOOTSTRAP_EXTRA_PACKAGES="" && \
 	if [[ "$TARGETARCH" == "arm*" ]]; then \
-			curl -L https://github.com/archlinuxarm/archlinuxarm-keyring/archive/8af9b54e9ee0a8f45ab0810e1b33d7c351b32362.zip | unzip -d /tmp/archlinuxarm-keyring - && \
+			ALARM_MIRROR="http://mirror.archlinuxarm.org" && \
+			mkdir /tmp/archlinuxarm-core /tmp/archlinuxarm-keyring && \
+			curl -L $ALARM_MIRROR/aarch64/core/core.db.tar.gz | tar -zxv -C /tmp/archlinuxarm-core && \
+			KEYRING_PACKAGE_FILENAME="$(grep -A1 "%FILENAME%" /tmp/archlinuxarm-core/archlinuxarm-keyring-*/desc | tail -n 1)" && \
+			curl -L $ALARM_MIRROR/aarch64/core/$KEYRING_PACKAGE_FILENAME > /tmp/$KEYRING_PACKAGE_FILENAME && \
+			tar -axvf /tmp/$KEYRING_PACKAGE_FILENAME -C /tmp/archlinuxarm-keyring && \
 			mkdir /usr/share/pacman/keyrings && \
-			mv /tmp/archlinuxarm-keyring/*/archlinuxarm* /usr/share/pacman/keyrings/ && \
+			mv /tmp/archlinuxarm-keyring/usr/share/pacman/keyrings/* /usr/share/pacman/keyrings/ && \
 			BOOTSTRAP_EXTRA_PACKAGES="archlinuxarm-keyring"; \
 	else \
 			apk add zstd && \
