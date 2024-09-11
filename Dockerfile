@@ -8,7 +8,11 @@ RUN \
 	cat /files/repos-$TARGETARCH >> /etc/pacman.conf && \
 	sed -i "s/^CheckSpace/#CheckSpace/" /etc/pacman.conf && \
 	mkdir -p /etc/pacman.d && \
-	cp /files/mirrorlist-$TARGETARCH /etc/pacman.d/mirrorlist && \
+	. /files/mirrorlist-$TARGETARCH.env && \
+	curl -L "$MIRRORLIST_URL" | sed -E 's/^\s*#\s*Server\s*=/Server =/g' > /etc/pacman.d/mirrorlist && \
+	if [ -n "$MIRRORLIST_ARCH" ]; then \
+		sed -i 's/\$arch/'$MIRRORLIST_ARCH'/g' /etc/pacman.d/mirrorlist; \
+	fi && \
 	BOOTSTRAP_EXTRA_PACKAGES="" && \
 	if case "$TARGETARCH" in arm*) true;; *) false;; esac; then \
 			EXTRA_KEYRING_FILES=" \
