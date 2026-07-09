@@ -70,3 +70,24 @@ jobs:
             PACKAGE_GROUP=${{ matrix.target.package-group }}
           cache-from: type=gha,scope=${{ matrix.target.tag }}
           cache-to: type=gha,scope=${{ matrix.target.tag }},mode=max
+
+  keepalive:
+    # GitHub disables scheduled workflows after 60 days without any
+    # repository activity. A workflow_dispatch event — even one fired
+    # from within a workflow using the default GITHUB_TOKEN — counts as
+    # activity and resets the 60-day counter. So every Monday's
+    # scheduled build ends by dispatching this same workflow to itself,
+    # keeping the schedule alive indefinitely without ever committing
+    # anything to main.
+    if: github.event_name == 'schedule'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Self-dispatch on Mondays
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          [[ "$(date -u +%u)" == "1" ]] || exit 0
+          gh workflow run build.yaml --repo "$GITHUB_REPOSITORY"
