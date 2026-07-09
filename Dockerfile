@@ -7,6 +7,7 @@ RUN \
 	apt-get install -y --no-install-recommends arch-install-scripts pacman-package-manager makepkg curl ca-certificates xz-utils zstd && \
 	cat /files/repos-$TARGETARCH >> /etc/pacman.conf && \
 	sed -i "s/^CheckSpace/#CheckSpace/" /etc/pacman.conf && \
+	sed -i '/^\[options\]/a SigLevel = Required DatabaseOptional' /etc/pacman.conf && \
 	mkdir -p /etc/pacman.d && \
 	. /files/mirrorlist-$TARGETARCH.env && \
 	curl -L "$MIRRORLIST_URL" | sed -E 's/^\s*#\s*Server\s*=/Server =/g' > /etc/pacman.d/mirrorlist && \
