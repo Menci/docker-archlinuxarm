@@ -73,21 +73,24 @@ jobs:
 
   keepalive:
     # GitHub disables scheduled workflows after 60 days without any
-    # repository activity. A workflow_dispatch event — even one fired
-    # from within a workflow using the default GITHUB_TOKEN — counts as
-    # activity and resets the 60-day counter. So every Monday's
-    # scheduled build ends by dispatching this same workflow to itself,
-    # keeping the schedule alive indefinitely without ever committing
-    # anything to main.
+    # repository activity. Force-enabling the workflow via the Actions
+    # API resets that inactivity counter — the same mechanism
+    # `gh-workflow-immortality` uses. Only commit activity on the
+    # default branch is documented as an activity signal, so this stays
+    # a workaround (see PhrozenByte/gh-workflow-immortality) but it
+    # avoids ever committing to main. Runs after every scheduled build.
+    #
+    # Requires a fine-grained PAT (KEEPALIVE_PAT secret) with only
+    # `Actions: Read and write` scoped to this repo, because the built-in
+    # GITHUB_TOKEN cannot call the workflow enable endpoint even with
+    # `actions: write` requested.
     if: github.event_name == 'schedule'
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
     steps:
-      - name: Self-dispatch on Mondays
+      - name: Re-enable workflow to reset the 60-day inactivity clock
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.KEEPALIVE_PAT }}
         run: |
-          [[ "$(date -u +%u)" == "1" ]] || exit 0
-          gh workflow run build.yaml --repo "$GITHUB_REPOSITORY"
+          gh api --method PUT \
+            "repos/$GITHUB_REPOSITORY/actions/workflows/build.yaml/enable"
