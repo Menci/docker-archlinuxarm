@@ -68,8 +68,6 @@ jobs:
           tags: ${{ env.TAGS }}
           build-args: |
             PACKAGE_GROUP=${{ matrix.target.package-group }}
-          cache-from: type=gha,scope=${{ matrix.target.tag }}
-          cache-to: type=gha,scope=${{ matrix.target.tag }},mode=max
 
   keepalive:
     # GitHub disables scheduled workflows after 60 days without any
